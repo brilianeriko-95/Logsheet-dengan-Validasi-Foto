@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Theme Colors untuk Status Bar -->
+    <meta name="theme-color" content="#0a0f1c" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#0a0f1c" media="(prefers-color-scheme: light)">
+    
+    <!-- iOS Specific -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Turbine Log">
+    
+    <!-- Android/Chrome Specific -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Turbine Log">
+    <meta name="msapplication-TileColor" content="#0a0f1c">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="msapplication-starturl" content="./index.html">
+    
+    <!-- SEO & Description -->
+    <meta name="description" content="Turbine Logsheet Professional - PT Petrokimia Gresik">
+    <meta name="author" content="Unit Utilitas 3B">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="manifest.json?v=2.0.0">
+    
+    <!-- Icons untuk iOS -->
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="icon-96x96.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="icon-128x128.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="384x384" href="icon-384x384.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512x512.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icon-16x16.png">
+    <link rel="shortcut icon" href="icon-192x192.png">
+    
+    <!-- Preconnect untuk performa -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <title>Turbine Logsheet Pro</title>
+    
+    <!-- Inline Critical CSS -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0f1c; 
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        .screen { display: none; min-height: 100vh; }
+        .screen.active { display: block; }
+        #loginScreen.active { display: flex !important; flex-direction: column; }
+        #balancingScreen.active { display: block; }
+        #logsheetSelectScreen.active { display: block; }
+        
+        /* LOADER - Modern Design */
+        .loader-overlay {
+            position: fixed; 
+            inset: 0; 
+            background: #0a0f1c;
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .loader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+            padding: 24px;
+        }
+        
+        .loader-logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 32px;
+            position: relative;
+        }
+        
+        .loader-logo::before {
+            content: '';
+            position: absolute;
+            inset: -10px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #3b82f6, #06b6d4, #10b981, #3b82f6);
+            opacity: 0.3;
+            filter: blur(15px);
+            animation: spin 2s linear infinite;
+        }
+        
+        .loader-logo-inner {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+        }
+        
+        .loader-text h3 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            background: linear-gradient(135deg, #f8fafc 0%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .loader-text p {
+            font-size: 0.9375rem;
+            color: #94a3b8;
+            margin: 0 0 32px 0;
+        }
+        
+        .progress-bar-loader {
+            width: 200px;
+            height: 4px;
+            background: rgba(148, 163, 184, 0.15);
+            border-radius: 9999px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        
+        .progress-bar-loader .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
+            width: 0%;
+            transition: width 0.4s ease;
+            border-radius: 9999px;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .custom-alert {
+            position: fixed; inset: 0; background: rgba(10, 15, 28, 0.9);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10001;
+        }
+        .custom-alert.hidden { display: none !important; }
+        
+        /* Input Grid Styles */
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .input-grid.three-col { grid-template-columns: repeat(3, 1fr); }
+        .input-grid.two-col { grid-template-columns: 1fr 1fr; }
+        
+        @media (max-width: 360px) {
+            .input-grid.three-col { grid-template-columns: 1fr 1fr; }
+        }
+        
+        .info-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .info-field label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+        .auto-field {
+            background: rgba(59, 130, 246, 0.1) !important;
+            border-color: #3b82f6 !important;
+            color: #60a5fa !important;
+            font-weight: 700;
+            text-align: center;
+        }
+        .shift-badge {
+            display: inline-block;
+            padding: 6px 20px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border-radius: 9999px;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+        }
+        .sub-section {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 12px 0;
+            border: 1px solid rgba(148, 163, 184, 0.15);
+        }
+        .nested-inputs {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(148, 163, 184, 0.15);
+        }
+        .calculated-field input {
+            background: rgba(16, 185, 129, 0.1) !important;
+            border-color: #10b981 !important;
+            color: #10b981 !important;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        .calculated-field.highlight-impor input.impor-indicator {
+            background: rgba(245, 158, 11, 0.1) !important;
+            border-color: #f59e0b !important;
+            color: #f59e0b !important;
+        }
+        .highlight-field input {
+            background: rgba(59, 130, 246, 0.05);
+            border-color: #3b82f6;
+        }
+        .with-select select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(148, 163, 184, 0.15);
+            border-radius: 8px;
+            color: #f8fafc;
+            font-size: 0.9375rem;
+        }
+        .calculation-result {
+            border: 1px dashed #3b82f6;
+            margin: 12px 0;
+            padding: 12px;
+            background: rgba(59, 130, 246, 0.05);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .monitoring-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .monitoring-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+        }
+        .monitoring-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .monitoring-item label {
+            font-size: 0.8125rem;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .limit-input {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .limit-input input { flex: 1; }
+        .limit-badge {
+            padding: 4px 10px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-radius: 4px;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 0.875rem;
+            min-height: 40px;
+        }
+        
+        /* Toolbar Buttons Hover Effects */
+        .btn-history:hover {
+            background: rgba(59, 130, 246, 0.2) !important;
+            transform: translateY(-2px);
+        }
+        .btn-reset:hover {
+            background: rgba(239, 68, 68, 0.2) !important;
+            transform: translateY(-2px);
+        }
+        .btn-history:active, .btn-reset:active {
+            transform: translateY(0);
+        }
+        
+        /* Ekspor/Impor Dynamic Styles */
+        #eksporLabel { transition: color 0.3s ease; }
+        #eksporMW { transition: all 0.3s ease; }
+        #eksporMW[data-state="ekspor"] {
+            border-color: #10b981 !important;
+            background: rgba(16, 185, 129, 0.05);
+        }
+        #eksporMW[data-state="impor"] {
+            border-color: #f59e0b !important;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        /* Logsheet Selection Screen */
+        .logsheet-select-container {
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .logsheet-select-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 24px;
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logsheet-select-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #3b82f6 0%, #60a5fa 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .logsheet-select-card:hover {
+            border-color: rgba(148, 163, 184, 0.3);
+            transform: translateX(8px);
+        }
+
+        .logsheet-select-card:hover::before {
+            opacity: 1;
+        }
+
+        .logsheet-select-card:active {
+            transform: scale(0.98);
+        }
+
+        .logsheet-select-card.ct-version::before {
+            background: linear-gradient(180deg, #06b6d4 0%, #22d3ee 100%);
+        }
+
+        .logsheet-icon-large {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .logsheet-select-card:hover .logsheet-icon-large {
+            transform: scale(1.1);
+        }
+
+        .logsheet-icon-large.turbin {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+        }
+
+        .logsheet-icon-large.ct {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.3);
+        }
+
+        .logsheet-info {
+            flex: 1;
+        }
+
+        .logsheet-info h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #f8fafc;
+        }
+
+        .logsheet-info p {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        .logsheet-arrow {
+            color: #64748b;
+            transition: all 0.3s ease;
+        }
+
+        .logsheet-select-card:hover .logsheet-arrow {
+            transform: translateX(8px);
+            color: #3b82f6;
+        }
+
+        .logsheet-select-card.ct-version:hover .logsheet-arrow {
+            color: #06b6d4;
+        }
+    </style>
+    
+    <link rel="stylesheet" href="style.css?v=3.4.0">
+    <link rel="manifest" href="manifest.json?v=2.0.0">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%3C/text%3E%3C/svg%3E">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Loading Screen - Modern Design -->
+<div id="loader" class="loader-overlay">
+    <div class="loader-content">
+        <div class="loader-logo">
+            <div class="loader-logo-inner">⚡</div>
+        </div>
+        <div class="loader-text">
+            <h3>Utilitas 3B</h3>
+            <p>Sinkronisasi Data...</p>
+            <div class="progress-bar-loader">
+                <div class="fill" id="loaderProgress" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Alert -->
+<div id="updateAlert" class="custom-alert hidden">
+    <div class="alert-content" style="background: linear-gradient(145deg, rgba(30, 41, 59, 0.9) 0%, rgba(17, 24, 39, 0.95) 100%); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 20px; padding: 28px; text-align: center; max-width: 340px;">
+        <div style="width: 64px; height: 64px; margin: 0 auto 20px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);">🔄</div>
+        <h3 style="margin-bottom: 8px; font-size: 1.25rem; font-weight: 700;">Update Tersedia</h3>
+        <p style="color: #94a3b8; margin-bottom: 20px; font-size: 0.9375rem;">Versi baru aplikasi telah tersedia dengan fitur terbaru.</p>
+        <button class="alert-btn" onclick="applyUpdate()" style="padding: 14px 28px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.9375rem; width: 100%;">Update Sekarang</button>
+    </div>
+</div>
+
+<!-- Custom Alert -->
+<div id="customAlert" class="custom-alert hidden">
+    <div class="alert-content" id="alertContent" style="background: linear-gradient(145deg, rgba(30, 41, 59, 0.9) 0%, rgba(17, 24, 39, 0.95) 100%); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 20px; padding: 28px; text-align: center; max-width: 340px;">
+        <div class="alert-icon-wrapper" id="alertIconWrapper" style="width: 64px; height: 64px; margin: 0 auto 20px;">
+            <svg viewBox="0 0 52 52" style="stroke: #10b981; stroke-width: 3; fill: none;">
+                <circle cx="26" cy="26" r="25"/>
+                <path d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+        </div>
+        <h3 id="alertTitle" style="margin-bottom: 8px; font-size: 1.25rem; font-weight: 700;">Berhasil</h3>
+        <p id="alertMessage" style="color: #94a3b8; margin-bottom: 20px; font-size: 0.9375rem;">Data berhasil dikirim!</p>
+        <button class="alert-btn success" onclick="closeAlert()" style="padding: 14px 28px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.9375rem; width: 100%;">Oke</button>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div id="changePasswordModal" class="custom-alert hidden" style="z-index: 10004;">
+    <div class="alert-content" style="background: linear-gradient(145deg, rgba(30, 41, 59, 0.95) 0%, rgba(17, 24, 39, 0.98) 100%); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 24px; padding: 28px; width: 90%; max-width: 380px;">
+        <div style="text-align: center; margin-bottom: 24px;">
+            <div style="width: 72px; height: 72px; margin: 0 auto 16px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);">🔐</div>
+            <h3 style="margin: 0; font-size: 1.375rem; font-weight: 700; color: #f8fafc;">Ganti Password</h3>
+            <p style="margin: 8px 0 0; font-size: 0.9375rem; color: #94a3b8;">@<span id="cpUsername">-</span></p>
+        </div>
+
+        <form id="changePasswordForm" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- Password Lama -->
+            <div id="oldPasswordGroup">
+                <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 6px; font-weight: 500;">Password Lama</label>
+                <div style="position: relative;">
+                    <input type="password" id="cpOldPassword" required style="width: 100%; padding: 14px 44px 14px 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: #f8fafc; font-size: 1rem; outline: none; transition: all 0.2s;">
+                    <button type="button" onclick="toggleCPVisibility('cpOldPassword', this)" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; font-size: 18px;">👁️</button>
+                </div>
+            </div>
+
+            <!-- Password Baru -->
+            <div>
+                <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 6px; font-weight: 500;">Password Baru</label>
+                <div style="position: relative;">
+                    <input type="password" id="cpNewPassword" required minlength="4" style="width: 100%; padding: 14px 44px 14px 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: #f8fafc; font-size: 1rem; outline: none; transition: all 0.2s;">
+                    <button type="button" onclick="toggleCPVisibility('cpNewPassword', this)" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; font-size: 18px;">👁️</button>
+                </div>
+                <small style="color: #64748b; font-size: 0.75rem; display: block; margin-top: 4px;">Minimal 4 karakter</small>
+            </div>
+
+            <!-- Konfirmasi Password -->
+            <div>
+                <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 6px; font-weight: 500;">Konfirmasi Password Baru</label>
+                <div style="position: relative;">
+                    <input type="password" id="cpConfirmPassword" required style="width: 100%; padding: 14px 44px 14px 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: #f8fafc; font-size: 1rem; outline: none; transition: all 0.2s;">
+                    <button type="button" onclick="toggleCPVisibility('cpConfirmPassword', this)" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; font-size: 18px;">👁️</button>
+                </div>
+                <div id="cpError" style="display: none; color: #ef4444; font-size: 0.875rem; margin-top: 8px; padding: 10px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2);"></div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 8px;">
+                <button type="button" onclick="closeChangePasswordModal()" style="flex: 1; padding: 14px; background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; font-size: 0.9375rem; cursor: pointer; font-weight: 600; transition: all 0.2s;">Batal</button>
+                <button type="submit" style="flex: 1; padding: 14px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; border-radius: 12px; font-size: 0.9375rem; cursor: pointer; font-weight: 600; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3); transition: all 0.2s;">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="app-container">
+    
+    <!-- LOGIN SCREEN - Modern Design -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="logo-container animated">
+                    <img src="logo.png" alt="Logo" id="loginLogo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="logo-fallback" style="display:none;">⚡</div>
+                </div>
+                <h1 class="app-title">TURBINE LOGSHEET PRO</h1>
+                <p class="app-subtitle">PT Petrokimia Gresik</p>
+            </div>
+                            
+            <div class="login-form glass">
+                <h2 class="login-title">🔐 Login Operator</h2>
+                <p class="login-subtitle">Masukkan username dan password</p>
+                
+                <!-- Username Input -->
+                <div class="input-group">
+                    <div class="login-input-wrapper">
+                        <span class="login-input-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </span>
+                        <input type="text" id="operatorUsername" class="login-input" placeholder="Username" autocomplete="username" enterkeyhint="next">
+                    </div>
+                </div>
+                
+                <!-- Password Input -->
+                <div class="input-group">
+                    <div class="login-input-wrapper">
+                        <span class="login-input-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                        </span>
+                        <input type="password" id="operatorPassword" class="login-input" placeholder="Password" autocomplete="current-password" enterkeyhint="done">
+                        <button type="button" onclick="togglePasswordVisibility()" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; padding: 4px;">
+                            <svg id="eyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Error Message -->
+                <p id="loginError" class="login-error"></p>
+                
+                <button class="btn btn-primary btn-full" onclick="loginOperator()" style="margin-top: 8px;">
+                    <span>🔓 Masuk</span>
+                </button>
+                
+                <div style="margin-top: 24px; text-align: center;">
+                    <small style="color: #475569; font-size: 0.75rem;">
+                        💡 Default login:<br>
+                        NIK / NIK
+                   </small>
+                </div>
+            </div>
+            
+            <div class="login-footer">
+                <p>PT Petrokimia Gresik • Unit III B</p>
+                <span class="version-tag">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                    v<span id="versionDisplay"></span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- HOME SCREEN - Modern Header with Popup Menu -->
+    <div id="homeScreen" class="screen">
+        <div class="home-header glass-header">
+            <div class="header-top">
+                <div class="user-info">
+                    <div class="avatar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <span id="displayUserName">Operator</span>
+                </div>
+                <!-- Header Actions: Install PWA, Password & Logout -->
+                <div class="header-actions">
+                    <button id="installPwaBtn" class="btn-icon btn-install hidden" onclick="installPWA()" title="Install App">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                    </button>
+                    <button class="btn-icon btn-password" onclick="showChangePasswordModal()" title="Ganti Password">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                    </button>
+                    <button class="btn-icon logout-btn" onclick="logoutOperator()" title="Keluar">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="home-hero-content">
+                <div class="logo-container small animated">
+                    <img src="logo.png" alt="Logo" id="mainLogo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="logo-fallback" style="display:none;">⚡</div>
+                </div>
+                <h1 class="home-title">LOGSHEET DIGITAL</h1>
+                <p class="home-subtitle">Pilih Menu Untuk Memulai</p>
+            </div>
+        </div>
+
+        <!-- Modern Menu Popup Overlay -->
+        <div id="branchMenuPopupOverlay" class="modern-menu-overlay hidden" onclick="closeBranchMenuPopup()">
+            <div class="modern-menu-popup" onclick="event.stopPropagation()">
+                <!-- Popup Header -->
+                <div class="modern-menu-header">
+                    <h3>Menu Utama</h3>
+                    <button class="modern-menu-close" onclick="closeBranchMenuPopup()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Menu Grid -->
+                <div class="modern-menu-grid">
+                    <!-- Logsheet Menu -->
+                    <div class="modern-menu-card primary" onclick="navigateTo('logsheetSelectScreen'); closeBranchMenuPopup();">
+                        <div class="modern-menu-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                        </div>
+                        <span class="modern-menu-label">Logsheet</span>
+                    </div>
+
+                    <!-- TPM Menu -->
+                    <div class="modern-menu-card warning" onclick="navigateTo('tpmScreen'); closeBranchMenuPopup();">
+                        <div class="modern-menu-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                            </svg>
+                        </div>
+                        <span class="modern-menu-label">TPM</span>
+                    </div>
+
+                    <!-- Balancing Menu -->
+                    <div class="modern-menu-card success" onclick="navigateTo('balancingScreen'); closeBranchMenuPopup();">
+                        <div class="modern-menu-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                        </div>
+                        <span class="modern-menu-label">Balancing</span>
+                    </div>
+
+                    <!-- Admin Menu -->
+                    <div class="modern-menu-card danger" id="adminBranchItem" onclick="showUserManagement(); closeBranchMenuPopup();">
+                        <div class="modern-menu-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            </svg>
+                        </div>
+                        <span class="modern-menu-label">Admin</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PWA Install Popup -->
+        <div id="pwaInstallPopup" class="pwa-install-overlay hidden">
+            <div class="pwa-install-popup">
+                <div class="pwa-install-icon">
+                    <div class="pwa-app-logo">⚡</div>
+                </div>
+                <h2 class="pwa-install-title">Install Aplikasi</h2>
+                <p class="pwa-install-desc">Tambahkan Turbine Log ke layar utama untuk akses lebih cepat.</p>
+                <div class="pwa-install-buttons">
+                    <button class="pwa-btn-install" onclick="installPWA()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        <span>Install Sekarang</span>
+                    </button>
+                    <button class="pwa-btn-later" onclick="dismissPWAInstall()">Nanti Saja</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="home-content-area">
+            <!-- Left Side: Round Menu Button -->
+            <div class="round-menu-section">
+                <button class="round-menu-btn" onclick="toggleBranchMenuPopup()" title="Menu Utama">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                </button>
+                <span class="round-menu-label">Menu</span>
+            </div>
+
+            <!-- Right Side: Job List from Spreadsheet -->
+            <div class="job-list-section">
+                <div class="job-list-header">
+                    <div class="job-list-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                    </div>
+                    <h3>Job Hari Ini</h3>
+                    <span class="job-date" id="jobDate">--/--/----</span>
+                </div>
+                <div class="job-list-content" id="jobListContainer">
+                    <div class="job-loading">
+                        <div class="spinner"></div>
+                        <span>Memuat data...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGSHEET SELECTION SCREEN -->
+    <div id="logsheetSelectScreen" class="screen">
+        <div class="screen-header glass-header">
+            <button class="btn-icon" onclick="navigateTo('homeScreen')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="header-title-group">
+                <h2>Pilih Logsheet</h2>
+                <span class="header-subtitle">Pilih jenis logsheet yang akan diisi</span>
+            </div>
+            <div class="user-pill">
+                <span id="logsheetSelectUser">-</span>
+            </div>
+        </div>
+
+        <div class="logsheet-select-container">
+            <!-- Pilihan Logsheet Turbin -->
+            <div class="logsheet-select-card" onclick="navigateTo('areaListScreen')">
+                <div class="logsheet-icon-large turbin">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="stroke: white;">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <div class="logsheet-info">
+                    <h3>Logsheet Turbin</h3>
+                    <p>Input data operasional turbine, steam, lube oil, dan parameter generator</p>
+                </div>
+                <div class="logsheet-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Pilihan Logsheet CT -->
+            <div class="logsheet-select-card ct-version" onclick="navigateTo('ctAreaListScreen')">
+                <div class="logsheet-icon-large ct">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="stroke: white;">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        <path d="M12 22V12"/>
+                    </svg>
+                </div>
+                <div class="logsheet-info">
+                    <h3>Logsheet Cooling Tower</h3>
+                    <p>Input data operasional basin SA & SU, pompa, fan, dan chemical</p>
+                </div>
+                <div class="logsheet-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TPM LIST SCREEN -->
+    <div id="tpmScreen" class="screen">
+        <div class="screen-header glass-header">
+            <button class="btn-icon" onclick="navigateTo('homeScreen')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h2>TPM Areas</h2>
+            <div class="user-pill">
+                <span id="tpmHeaderUser">-</span>
+            </div>
+        </div>
+
+        <div class="list-container">
+            <div class="list-item" onclick="openTPMArea('Area #6200')">
+                <div class="item-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">🔧</div>
+                <div class="item-content">
+                    <h4>Area #6200</h4>
+                    <p>Peralatan & Sistem Unit</p>
+                </div>
+                <svg class="item-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </div>
+
+            <div class="list-item" onclick="openTPMArea('Area Turbin')">
+                <div class="item-icon" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">⚙️</div>
+                <div class="item-content">
+                    <h4>Area Turbin</h4>
+                    <p>Maintenance Sistem Turbin</p>
+                </div>
+                <svg class="item-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </div>
+
+            <div class="list-item" onclick="openTPMArea('Area Cooling Tower')">
+                <div class="item-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">🗼</div>
+                <div class="item-content">
+                    <h4>Cooling Tower</h4>
+                    <p>Sistem Pendingin</p>
+                </div>
+                <svg class="item-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </div>
+
+            <div class="list-item" onclick="openTPMArea('Area Compressor')">
+                <div class="item-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">🌬️</div>
+                <div class="item-content">
+                    <h4>Area Compressor</h4>
+                    <p>Sistem Kompresor</p>
+                </div>
+                <svg class="item-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- TPM INPUT SCREEN -->
+    <div id="tpmInputScreen" class="screen">
+        <div class="screen-header glass-header">
+            <button class="btn-icon" onclick="navigateTo('tpmScreen')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="header-title-group">
+                <h2 id="tpmInputTitle">TPM Check</h2>
+                <span class="header-subtitle" id="tpmInputUser">-</span>
+            </div>
+            <div style="width: 40px;"></div>
+        </div>
+
+        <div class="form-container">
+            <input type="file" id="tpmCamera" accept="image/*" capture="environment" style="display: none;" onchange="handleTPMPhoto(event)">
+            
+            <div class="photo-card glass" id="tpmPhotoSection">
+                <div class="photo-preview" id="tpmPhotoPreview" style="height: 200px; background: #1e293b; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                    <div class="photo-placeholder" style="text-align: center; color: #64748b;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 8px;">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                        <div>Ambil Foto</div>
+                    </div>
+                </div>
+                <button class="btn btn-camera" onclick="document.getElementById('tpmCamera').click()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600;">
+                    <span>📷 Buka Kamera</span>
+                </button>
+            </div>
+
+            <div class="form-card glass">
+                <h3 class="form-section-title">Status Kondisi</h3>
+                
+                <div class="status-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px;">
+                    <button class="status-btn" id="btnNormal" onclick="selectTPMStatus('normal')" style="padding: 16px; background: rgba(30, 41, 59, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: white; cursor: pointer; font-weight: 600;">
+                        <span class="status-dot" style="display: inline-block; width: 12px; height: 12px; background: #10b981; border-radius: 50%; margin-bottom: 4px;"></span>
+                        <div>Normal</div>
+                    </button>
+                    <button class="status-btn" id="btnAbnormal" onclick="selectTPMStatus('abnormal')" style="padding: 16px; background: rgba(30, 41, 59, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: white; cursor: pointer; font-weight: 600;">
+                        <span class="status-dot" style="display: inline-block; width: 12px; height: 12px; background: #f59e0b; border-radius: 50%; margin-bottom: 4px;"></span>
+                        <div>Abnormal</div>
+                    </button>
+                    <button class="status-btn" id="btnOff" onclick="selectTPMStatus('off')" style="padding: 16px; background: rgba(30, 41, 59, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: white; cursor: pointer; font-weight: 600;">
+                        <span class="status-dot" style="display: inline-block; width: 12px; height: 12px; background: #ef4444; border-radius: 50%; margin-bottom: 4px;"></span>
+                        <div>Off</div>
+                    </button>
+                </div>
+
+                <div class="form-field" style="margin-bottom: 16px;">
+                    <label for="tpmNotes" style="display: block; margin-bottom: 8px; color: #94a3b8; font-weight: 600;">Keterangan / Temuan</label>
+                    <textarea id="tpmNotes" rows="3" placeholder="Deskripsikan kondisi area..." style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: white; resize: vertical; font-family: inherit;"></textarea>
+                </div>
+
+                <div class="form-field">
+                    <label for="tpmAction" style="display: block; margin-bottom: 8px; color: #94a3b8; font-weight: 600;">Tindakan</label>
+                    <select id="tpmAction" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: white; font-family: inherit;">
+                        <option value="">Pilih tindakan...</option>
+                        <option value="Checking/Routine">Checking/Routine</option>
+                        <option value="Cleaning">Cleaning</option>
+                        <option value="Oiling/Lubrication">Oiling/Lubrication</option>
+                        <option value="Minor Repair">Minor Repair</option>
+                        <option value="Report to Maintenance">Report to Maintenance</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn btn-submit btn-full" onclick="submitTPMData()" style="width: 100%; padding: 16px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);">
+                <span>💾 Simpan Data TPM</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- TURBINE AREA LIST SCREEN -->
+    <div id="areaListScreen" class="screen">
+        <div class="screen-header glass-header">
+            <button class="btn-icon" onclick="navigateTo('logsheetSelectScreen')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="header-title-group">
+                <h2>Logsheet Turbin</h2>
+                <span class="header-subtitle" id="progressText">0% Complete</span>
+            </div>
+            <div class="user-pill">
+                <span id="areaListUser">-</span>
+            </div>
+        </div>
+
+        <div class="progress-card glass">
+            <div class="progress-header">
+                <span>Overall Progress</span>
+                <span class="progress-value" id="overallPercent">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="overallProgressBar"></div>
+            </div>
+        </div>
+
+        <div class="areas-list" id="areaList"></div>
+
+        <button class="btn btn-floating" id="submitBtn" onclick="sendToSheet()">
+            <span>📤 Kirim Data</span>
+        </button>
+    </div>
+
+    <!-- TURBINE PARAMETER INPUT SCREEN -->
+    <div id="paramScreen" class="screen">
+        <div class="screen-header glass-header">
+            <button class="btn-icon" onclick="goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="step-badge">
+                <span id="stepInfo">1/10</span>
+            </div>
+            <div class="user-pill">
+                <span id="paramUser">-</span>
+            </div>
+        </div>
+
+        <div class="param-container">
+            <div class="param-card glass">
+                <div class="param-header">
+                    <span class="param-area" id="currentAreaName">Area</span>
+                    <span class="param-counter" id="areaProgress">1/10</span>
+                </div>
+                
+                <h2 class="param-name" id="labelInput">Parameter Name</h2>
+                
+                <div class="input-box" id="mainInputWrapper">
+                    <div class="input-field" id="inputFieldContainer">
+                        <input type="text" id="valInput" inputmode="decimal" placeholder="0.00" autocomplete="off">
+                    </div>
+                    <div class="input-unit" id="unitDisplay">--</div>
+                </div>
+
+                <div class="reference-box">
+                    <div class="ref-item">
+                        <span class="ref-label">Nilai Terakhir</span>
+                        <span class="ref-value" id="prevValDisplay">--</span>
+                    </div>
+                    <div class="ref-divider"></div>
+                    <div class="ref-item">
+                        <span class="ref-label">Update</span>
+                        <span class="ref-value" id="lastTimeLabel">--:--</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Status Abnormal Section -->
+            <div class="status-abnormal-card" id="statusAbnormalCard">
+                <div class="status-header">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <span>Kondisi Parameter</span>
+                </div>
+                
+                <div class="status-options">
+                    <label class="status-chip" data-status="ERROR">
+                        <input type="checkbox" name="paramStatus" value="ERROR" onchange="handleStatusChange(this)">
+                        <span class="chip-icon">⚠️</span>
+                        <span class="chip-text">ERROR</span>
+                    </label>
+                    
+                    <label class="status-chip" data-status="UPPER">
+                        <input type="checkbox" name="paramStatus" value="UPPER" onchange="handleStatusChange(this)">
+                        <span class="chip-icon">⬆️</span>
+                        <span class="chip-text">UPPER</span>
+                    </label>
+                    
+                    <label class="status-chip" data-status="NOT_INSTALLED">
+                        <input type="checkbox" name="paramStatus" value="NOT_INSTALLED" onchange="handleStatusChange(this)">
+                        <span class="chip-icon">❌</span>
+                        <span class="chip-text">TIDAK TERPASANG</span>
+                    </label>
+                </div>
+                
+                <div class="status-note" id="statusNoteContainer" style="display: none;">
+                    <input type="text" id="statusNote" placeholder="Keterangan masalah (opsional)..." maxlength="100">
+                </div>
+            </div>
+
+            <!-- Foto Validasi Section -->
+            <input type="file" id="paramCamera" accept="image/*" capture="environment" style="display: none;" onchange="handleParamPhoto(event)">
+            
+            <div class="photo-card glass param-photo-card" id="paramPhotoSection">
+                <div class="photo-section-header">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                    <span>Foto Validasi Realtime</span>
+                    <span class="photo-badge" id="paramPhotoBadge">OPSIONAL</span>
+                </div>
+                <div class="photo-preview" id="paramPhotoPreview" style="height: 160px; background: #1e293b; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                    <div class="photo-placeholder">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                        <div>Belum ada foto</div>
+                        <small>Ambil foto parameter untuk validasi</small>
+                    </div>
+                </div>
+                <button class="btn btn-camera" onclick="document.getElementById('paramCamera').click()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                    <span>📷 Ambil Foto Parameter</span>
+                </button>
+            </div>
+            
+            <div class="param-dots" id="progressDots"></div>
+
+            <div class="action-bar">
+                <button class="btn btn-secondary" onclick="goBack()">
+                    <span>Kembali</span>
+                </button>
+                <button class="btn btn-primary btn-flex" onclick="saveStep()">
+                    <span>Simpan</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CT AREA LIST SCREEN -->
+    <div id="ctAreaListScreen" class="screen">
+        <div class="screen-header glass-header">
+            <button class="btn-icon" onclick="navigateTo('logsheetSelectScreen')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="header-title-group">
+                <h2>Logsheet CT</h2>
+                <span class="header-subtitle" id="ctProgressText">0% Complete</span>
+            </div>
+            <div class="user-pill">
+                <span id="ctAreaListUser">-</span>
+            </div>
+        </div>
+
+        <div class="progress-card glass">
+            <div class="progress-header">
+                <span>Overall Progress</span>
+                <span class="progress-value" id="ctOverallPercent">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="ctOverallProgressBar" style="background: linear-gradient(90deg, #06b6d4, #22d3ee);"></div>
+            </div>
+        </div>
+
+        <div class="areas-list" id="ctAreaList"></div>
+
+        <button class="btn btn-floating" id="ctSubmitBtn" onclick="sendCTToSheet()" style="display: none; background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);">
+            <span>📤 Kirim Data CT</span>
+        </button>
+    </div>
+
+    <!-- CT PARAMETER INPUT SCREEN -->
+    <div id="ctParamScreen" class="screen">
+        <div class="screen-header glass-header">
+            <button class="btn-icon" onclick="goBackCT()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="step-badge">
+                <span id="ctStepInfo">1/14</span>
+            </div>
+            <div class="user-pill">
+                <span id="ctParamUser">-</span>
+            </div>
+        </div>
+
+        <div class="param-container">
+            <div class="param-card glass">
+                <div class="param-header">
+                    <span class="param-area" id="ctCurrentAreaName" style="color: #06b6d4;">Area</span>
+                    <span class="param-counter" id="ctAreaProgress">1/14</span>
+                </div>
+                
+                <h2 class="param-name" id="ctLabelInput">Parameter Name</h2>
+                
+                <div class="input-box" id="ctMainInputWrapper">
+                    <div class="input-field" id="ctInputFieldContainer">
+                        <input type="text" id="ctValInput" inputmode="decimal" placeholder="0.00" autocomplete="off">
+                    </div>
+                    <div class="input-unit" id="ctUnitDisplay">--</div>
+                </div>
+
+                <div class="reference-box">
+                    <div class="ref-item">
+                        <span class="ref-label">Nilai Terakhir</span>
+                        <span class="ref-value" id="ctPrevValDisplay">--</span>
+                    </div>
+                    <div class="ref-divider"></div>
+                    <div class="ref-item">
+                        <span class="ref-label">Update</span>
+                        <span class="ref-value" id="ctLastTimeLabel">--:--</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Status Abnormal Section untuk CT -->
+            <div class="status-abnormal-card" id="ctStatusAbnormalCard">
+                <div class="status-header" style="color: #06b6d4;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <span>Kondisi Parameter</span>
+                </div>
+                
+                <div class="status-options">
+                    <label class="status-chip" data-status="ERROR">
+                        <input type="checkbox" name="ctParamStatus" value="ERROR" onchange="handleCTStatusChange(this)">
+                        <span class="chip-icon">⚠️</span>
+                        <span class="chip-text">ERROR</span>
+                    </label>
+                    
+                    <label class="status-chip" data-status="MAINTENANCE">
+                        <input type="checkbox" name="ctParamStatus" value="MAINTENANCE" onchange="handleCTStatusChange(this)">
+                        <span class="chip-icon">🔧</span>
+                        <span class="chip-text">MAINTENANCE</span>
+                    </label>
+                    
+                    <label class="status-chip" data-status="NOT_INSTALLED">
+                        <input type="checkbox" name="ctParamStatus" value="NOT_INSTALLED" onchange="handleCTStatusChange(this)">
+                        <span class="chip-icon">❌</span>
+                        <span class="chip-text">TIDAK TERPASANG</span>
+                    </label>
+                </div>
+                
+                <div class="status-note" id="ctStatusNoteContainer" style="display: none;">
+                    <input type="text" id="ctStatusNote" placeholder="Keterangan masalah (opsional)..." maxlength="100">
+                </div>
+            </div>
+
+            <!-- Foto Validasi Section untuk CT -->
+            <input type="file" id="ctParamCamera" accept="image/*" capture="environment" style="display: none;" onchange="handleCTParamPhoto(event)">
+            
+            <div class="photo-card glass param-photo-card" id="ctParamPhotoSection">
+                <div class="photo-section-header">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                    <span>Foto Validasi Realtime</span>
+                    <span class="photo-badge ct-badge" id="ctParamPhotoBadge">OPSIONAL</span>
+                </div>
+                <div class="photo-preview" id="ctParamPhotoPreview" style="height: 160px; background: #1e293b; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                    <div class="photo-placeholder">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                        <div>Belum ada foto</div>
+                        <small>Ambil foto parameter untuk validasi</small>
+                    </div>
+                </div>
+                <button class="btn btn-camera" onclick="document.getElementById('ctParamCamera').click()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white; border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                    <span>📷 Ambil Foto Parameter</span>
+                </button>
+            </div>
+
+            <div class="param-dots" id="ctProgressDots"></div>
+
+            <div class="action-bar">
+                <button class="btn btn-secondary" onclick="goBackCT()">
+                    <span>Kembali</span>
+                </button>
+                <button class="btn btn-primary btn-flex" onclick="saveCTStep()" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+                    <span>Simpan</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BALANCING INPUT SCREEN -->
+    <div id="balancingScreen" class="screen">
+        <div class="screen-header glass-header">
+            <button class="btn-icon" onclick="navigateTo('homeScreen')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="header-title-group">
+                <h2>Input Balancing</h2>
+                <span class="header-subtitle" id="balancingShiftInfo">Shift 3 • Auto Update</span>
+            </div>
+            <div class="user-pill">
+                <span id="balancingUser">-</span>
+            </div>
+        </div>
+
+        <div class="form-container" style="padding: 12px 16px; padding-bottom: 100px;">
+            <!-- Header Info Card -->
+            <div class="form-card glass" style="margin-bottom: 16px; padding: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="info-field">
+                        <label>Tanggal</label>
+                        <input type="date" id="balancingDate" readonly class="auto-field" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.2); background: rgba(15, 23, 42, 0.6); color: white; font-weight: 600;">
+                    </div>
+                    <div class="info-field">
+                        <label>Jam Update</label>
+                        <input type="time" id="balancingTime" readonly class="auto-field" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.2); background: rgba(15, 23, 42, 0.6); color: white; font-weight: 600;">
+                    </div>
+                </div>
+                <div style="margin-top: 16px; text-align: center;">
+                    <span class="shift-badge" id="currentShiftBadge">SHIFT 3</span>
+                </div>
+            </div>
+
+            <!-- TOOLBAR BUTTONS -->
+            <div class="balancing-toolbar" style="margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button type="button" onclick="loadLastBalancingData()" class="btn-history">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74-2.74L3 12"/>
+                        <path d="M3 3v9h9"/>
+                    </svg>
+                    <span>Data Terakhir</span>
+                </button>
+
+                <button type="button" onclick="resetBalancingForm()" class="btn-reset">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    <span>Reset Form</span>
+                </button>
+            </div>
+
+            <!-- Output Power STG 17,5 -->
+            <div class="form-card glass" style="margin-bottom: 16px; padding: 20px;">
+                <h3 style="font-size: 1.0625rem; font-weight: 700; margin-bottom: 16px; color: #f8fafc;">Output Power STG 17,5 MW</h3>
+                <div class="input-grid">
+                    <div class="form-field">
+                        <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">Load (MW)</label>
+                        <input type="number" id="loadMW" step="0.01" placeholder="0.00" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 1rem; outline: none; transition: all 0.2s;">
+                    </div>
+                    <div class="form-field">
+                        <label id="eksporLabel" style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600; transition: color 0.3s;">Ekspor (MW)</label>
+                        <input type="number" id="eksporMW" step="0.001" placeholder="0.000" oninput="handleEksporInput(this)" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 1rem; outline: none; transition: all 0.3s;">
+                        <small id="eksporHint" style="display: block; margin-top: 4px; font-size: 0.75rem; color: #94a3b8;">
+                            💡 <strong>Minus (-) = Ekspor</strong> | <strong>Plus (+) = Impor</strong>
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balance Power SCADA -->
+            <div class="form-card glass" style="margin-bottom: 16px; padding: 20px;">
+                <h3 style="font-size: 1.0625rem; font-weight: 700; margin-bottom: 16px; color: #f8fafc;">Balance Power SCADA (MW)</h3>
+                <div class="input-grid three-col">
+                    <div class="form-field">
+                        <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">PLN</label>
+                        <input type="number" id="plnMW" step="0.01" placeholder="0.00" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                    </div>
+                    <div class="form-field">
+                        <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">UBB</label>
+                        <input type="number" id="ubbMW" step="0.01" placeholder="0.00" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                    </div>
+                    <div class="form-field">
+                        <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">PIE</label>
+                        <input type="number" id="pieMW" step="0.01" placeholder="0.00" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                    </div>
+                    <div class="form-field">
+                        <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">TG-65</label>
+                        <input type="number" id="tg65MW" step="0.01" placeholder="0.00" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                    </div>
+                    <div class="form-field">
+                        <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">TG-66</label>
+                        <input type="number" id="tg66MW" step="0.01" placeholder="0.00" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                    </div>
+                    <div class="form-field">
+                        <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">GTG</label>
+                        <input type="number" id="gtgMW" step="0.01" placeholder="0.00" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Konsumsi Power 3B -->
+            <div class="form-card glass" style="margin-bottom: 16px; padding: 20px;">
+                <h3 style="font-size: 1.0625rem; font-weight: 700; margin-bottom: 16px; color: #f8fafc;">Konsumsi Power 3B</h3>
+                
+                <div class="form-field" style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">SS-6500 (TR-Main 01) (MW)</label>
+                    <input type="number" id="ss6500MW" step="0.001" placeholder="0.000" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 1rem; outline: none;">
+                </div>
+
+                <div class="sub-section">
+                    <div class="form-field with-select" style="margin-bottom: 12px;">
+                        <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">SS-2000 Via</label>
+                        <select id="ss2000Via" onchange="toggleSS2000Detail()" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.9375rem; outline: none;">
+                            <option value="TR-Main01">TR-Main 01</option>
+                            <option value="TR-Main02">TR-Main 02</option>
+                        </select>
+                    </div>
+                    
+                    <div id="ss2000Detail" class="nested-inputs">
+                        <div class="input-grid">
+                            <div class="form-field">
+                                <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">Active Power (MW)</label>
+                                <input type="number" id="activePowerMW" step="0.001" placeholder="0.000" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                            </div>
+                            <div class="form-field">
+                                <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">Reactive Power (MVAR)</label>
+                                <input type="number" id="reactivePowerMVAR" step="0.001" placeholder="0.000" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                            </div>
+                            <div class="form-field">
+                                <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">Current S (A)</label>
+                                <input type="number" id="currentS" step="0.1" placeholder="0.0" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                            </div>
+                            <div class="form-field">
+                                <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">Voltage (V)</label>
+                                <input type="number" id="voltageV" step="1" placeholder="0" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                            </div>
+                        </div>
+                        <div class="input-grid" style="margin-top: 12px;">
+                            <div class="form-field">
+                                <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">HVS65 L02 (MW)</label>
+                                <input type="number" id="hvs65l02MW" step="0.001" placeholder="0.000" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                            </div>
+                            <div class="form-field">
+                                <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">HVS65 L02 (A)</label>
+                                <input type="number" id="hvs65l02Current" step="0.1" placeholder="0.0" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-field" style="margin-top: 16px;">
+                    <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">Total 3B (MW)</label>
+                    <input type="number" id="total3BMW" step="0.001" placeholder="0.000" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 1rem; outline: none;">
+                </div>
+            </div>
+
+            <!-- Produksi & Konsumsi Steam -->
+            <div class="form-card glass" style="margin-bottom: 16px; padding: 20px;">
+                <h3 style="font-size: 1.0625rem; font-weight: 700; margin-bottom: 16px; color: #f8fafc;">Produksi & Konsumsi Steam</h3>
+                
+                <div class="form-field highlight-field" style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">Produksi Steam SA - FQ-1105 (t/h)</label>
+                    <input type="number" id="fq1105" step="0.1" placeholder="0.0" oninput="calculateLPBalance()" style="width: 100%; padding: 14px; background: rgba(59, 130, 246, 0.1); border: 2px solid #3b82f6; color: white; font-size: 1rem; border-radius: 10px; outline: none;">
+                </div>
+
+                <div class="sub-section">
+                    <h4 style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 12px; margin-top: 0; font-weight: 600;">Konsumsi Steam 3B (t/h)</h4>
+                    
+                    <div class="input-grid">
+                        <div class="form-field">
+                            <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">STG 17,5</label>
+                            <input type="number" id="stgSteam" step="0.1" placeholder="0.0" oninput="calculateLPBalance()" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                        </div>
+                        <div class="form-field">
+                            <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">PA2</label>
+                            <input type="number" id="pa2Steam" step="0.1" placeholder="0.0" oninput="calculateLPBalance()" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                        </div>
+                    </div>
+
+                    <div class="input-grid three-col">
+                        <div class="form-field with-select">
+                            <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">Melter SA2</label>
+                            <select id="melterSA2" onchange="calculateLPBalance()" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                                <option value="0">0</option>
+                                <option value="5">5</option>
+                                <option value="7.5" selected>7.5</option>
+                            </select>
+                        </div>
+                        <div class="form-field with-select">
+                            <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">Ejector</label>
+                            <select id="ejectorSteam" onchange="calculateLPBalance()" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                                <option value="0">0</option>
+                                <option value="2.5" selected>2.5</option>
+                            </select>
+                        </div>
+                        <div class="form-field with-select">
+                            <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">Gland Seal</label>
+                            <select id="glandSealSteam" onchange="calculateLPBalance()" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                                <option value="0">0</option>
+                                <option value="1" selected>1</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-grid">
+                        <div class="form-field">
+                            <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">Puri2</label>
+                            <input type="number" id="puri2Steam" step="0.1" value="1.4" oninput="calculateLPBalance()" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                        </div>
+                        <div class="form-field">
+                            <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">Deaerator</label>
+                            <input type="number" id="deaeratorSteam" step="0.1" value="2.5" oninput="calculateLPBalance()" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                        </div>
+                        <div class="form-field">
+                            <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">Dump Condenser</label>
+                            <input type="number" id="dumpCondenser" step="0.1" value="5.0" oninput="calculateLPBalance()" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                        </div>
+                        <div class="form-field">
+                            <label style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">PCV-6105</label>
+                            <input type="number" id="pcv6105" step="0.1" value="0.0" oninput="calculateLPBalance()" style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; font-size: 0.875rem; outline: none;">
+                        </div>
+                    </div>
+
+                    <div class="calculation-result">
+                        <span style="font-size: 0.875rem; color: #94a3b8; font-weight: 500;">Total Konsumsi:</span>
+                        <span id="totalKonsumsiSteam" style="font-weight: 700; color: #60a5fa; font-size: 1.125rem;">0.0 t/h</span>
+                    </div>
+                </div>
+
+                <div class="form-field calculated-field highlight-impor" id="lpBalanceField" style="margin-top: 16px; padding: 16px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05);">
+                    <label id="lpBalanceLabel" style="display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">LPS Ekspor ke SU 3A (t/h)</label>
+                    <input type="number" id="lpBalanceValue" step="0.1" readonly style="width: 100%; padding: 14px; background: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; color: #10b981; font-weight: 700; font-size: 1.25rem; border-radius: 10px;">
+                    <small id="lpBalanceStatus" style="display: block; margin-top: 6px; color: #10b981; font-size: 0.8125rem; font-weight: 500;">Posisi: Ekspor ke 3A</small>
+                </div>
+            </div>
+
+            <!-- Monitoring -->
+            <div class="form-card glass" style="margin-bottom: 16px; padding: 20px;">
+                <h3 style="font-size: 1.0625rem; font-weight: 700; margin-bottom: 16px; color: #f8fafc;">Monitoring</h3>
+                <div class="monitoring-grid">
+                    <div class="monitoring-item">
+                        <label>Steam Extraction PI-6122 (kg/cm²)</label>
+                        <input type="number" id="pi6122" step="0.01" placeholder="0.00" style="width: 100%; padding: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: white; outline: none;">
+                        <label style="margin-top: 6px; font-size: 0.75rem;">TI-6112 (°C)</label>
+                        <input type="number" id="ti6112" step="0.1" placeholder="0.0" style="width: 100%; padding: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: white; outline: none;">
+                    </div>
+                    
+                    <div class="monitoring-item">
+                        <label>Temp. Cooling Air Inlet TI-6146/47 (°C)</label>
+                        <input type="number" id="ti6146" step="0.01" placeholder="0.00" style="width: 100%; padding: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: white; outline: none;">
+                    </div>
+                    
+                    <div class="monitoring-item">
+                        <label>Temp. Lube Oil TI-6126 (°C)</label>
+                        <input type="number" id="ti6126" step="0.01" placeholder="0.00" style="width: 100%; padding: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: white; outline: none;">
+                    </div>
+                    
+                    <div class="monitoring-item with-limit">
+                        <label>Axial Displacement (mm)</label>
+                        <div class="limit-input">
+                            <input type="number" id="axialDisplacement" step="0.01" placeholder="0.00" style="padding: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: white; outline: none;">
+                            <span class="limit-badge">High: 0.6</span>
+                        </div>
+                    </div>
+                    
+                    <div class="monitoring-item with-limit">
+                        <label>Vibrasi VI-6102 (μm)</label>
+                        <div class="limit-input">
+                            <input type="number" id="vi6102" step="0.01" placeholder="0.00" style="padding: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: white; outline: none;">
+                            <span class="limit-badge">High: 85</span>
+                        </div>
+                    </div>
+                    
+                    <div class="monitoring-item with-limit">
+                        <label>Temp. Journal Bearing TE-6134 (°C)</label>
+                        <div class="limit-input">
+                            <input type="number" id="te6134" step="0.1" placeholder="0.0" style="padding: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: white; outline: none;">
+                            <span class="limit-badge">High: 115</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-grid two-col" style="margin-top: 16px;">
+                    <div class="form-field">
+                        <label>CT SU - Fan</label>
+                        <input type="number" id="ctSuFan" value="4" min="0" max="10" style="width: 100%; padding: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: white; outline: none;">
+                    </div>
+                    <div class="form-field">
+                        <label>CT SU - Pompa</label>
+                        <input type="number" id="ctSuPompa" value="2" min="0" max="10" style="width: 100%; padding: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: white; outline: none;">
+                    </div>
+                    <div class="form-field">
+                        <label>CT SA - Fan</label>
+                        <input type="number" id="ctSaFan" value="3" min="0" max="10" style="width: 100%; padding: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: white; outline: none;">
+                    </div>
+                    <div class="form-field">
+                        <label>CT SA - Pompa</label>
+                        <input type="number" id="ctSaPompa" value="2" min="0" max="10" style="width: 100%; padding: 12px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: white; outline: none;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kegiatan Shift -->
+            <div class="form-card glass" style="margin-bottom: 24px; padding: 20px;">
+                <h3 style="font-size: 1.0625rem; font-weight: 700; margin-bottom: 12px; color: #f8fafc;">Kegiatan Shift <span id="kegiatanShiftNum">3</span></h3>
+                <div class="form-field">
+                    <textarea id="kegiatanShift" rows="4" placeholder="Masukkan kegiatan shift..." style="width: 100%; padding: 14px; background: rgba(15, 23, 42, 0.6); border: 2px solid rgba(148, 163, 184, 0.2); border-radius: 10px; color: white; resize: vertical; font-family: inherit; outline: none;"></textarea>
+                </div>
+            </div>
+
+            <!-- Tombol Simpan -->
+            <div class="form-actions" style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn btn-submit btn-full" onclick="submitBalancingData()" 
+                        style="width: 100%; padding: 18px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); 
+                               color: white; border: none; border-radius: 14px; font-weight: 700; 
+                               cursor: pointer; font-size: 1rem; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+                               display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    <span>Simpan Data Balancing</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Progress Overlay -->
+    <div id="uploadProgressOverlay" class="upload-overlay hidden">
+        <div class="upload-content">
+            <div class="progress-ring-container">
+                <svg class="progress-ring" width="120" height="120">
+                    <circle class="progress-ring-bg" cx="60" cy="60" r="54"/>
+                    <circle class="progress-ring-fill" id="progressRingFill" cx="60" cy="60" r="54"/>
+                </svg>
+                <div class="progress-percentage" id="progressPercentage">0%</div>
+                <div class="turbine-mini" id="uploadTurbine">
+                    <svg width="40" height="40" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="8" fill="#3b82f6"/>
+                        <ellipse cx="50" cy="25" rx="6" ry="20" fill="#60a5fa" opacity="0.8"/>
+                        <ellipse cx="72" cy="38" rx="6" ry="20" fill="#60a5fa" opacity="0.8" transform="rotate(60 72 38)"/>
+                        <ellipse cx="72" cy="62" rx="6" ry="20" fill="#60a5fa" opacity="0.8" transform="rotate(120 72 62)"/>
+                        <ellipse cx="50" cy="75" rx="6" ry="20" fill="#60a5fa" opacity="0.8"/>
+                        <ellipse cx="28" cy="62" rx="6" ry="20" fill="#60a5fa" opacity="0.8" transform="rotate(60 28 62)"/>
+                        <ellipse cx="28" cy="38" rx="6" ry="20" fill="#60a5fa" opacity="0.8" transform="rotate(120 28 38)"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="upload-status">
+                <h3 id="uploadStatusText">Mengupload Data...</h3>
+                <div class="upload-steps">
+                    <div class="step active" id="step1">
+                        <div class="step-icon">1</div>
+                        <span>Menyiapkan</span>
+                    </div>
+                    <div class="step-line" id="stepLine1"></div>
+                    <div class="step" id="step2">
+                        <div class="step-icon">2</div>
+                        <span>Mengirim</span>
+                    </div>
+                    <div class="step-line" id="stepLine2"></div>
+                    <div class="step" id="step3">
+                        <div class="step-icon">3</div>
+                        <span>Menyimpan</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="cancelUploadBtn" class="btn-cancel-upload" onclick="cancelUpload()" style="display: none;">
+                Batal
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="app.js?v=3.4.0"></script>
+<script>
+    // Override untuk update UI user di Logsheet Selection Screen
+    document.addEventListener('DOMContentLoaded', function() {
+        const originalNavigateTo = window.navigateTo;
+        window.navigateTo = function(screenId) {
+            if (screenId === 'logsheetSelectScreen' && currentUser) {
+                const userEl = document.getElementById('logsheetSelectUser');
+                if (userEl) userEl.textContent = currentUser.name || currentUser.username;
+            }
+            if (typeof originalNavigateTo === 'function') {
+                originalNavigateTo(screenId);
+            } else {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                const target = document.getElementById(screenId);
+                if (target) target.classList.add('active');
+            }
+        };
+    });
+</script>
+</body>
+</html>
